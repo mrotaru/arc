@@ -14,30 +14,31 @@ export function* createResource(api, { data }, { resource, thunk }) {
   }
 }
 
-export function* readResourceList(api, { params }, { resource, thunk }) {
+export function* readResourceList(api, { params }, { resource, thunk, endpointOptions }) {
   try {
-    const list = yield call([api, api.get], `/${resource}`, { params })
-    yield put(actions.resourceListReadSuccess(resource, list, { params }, thunk))
+    const list = yield call([api, api.getList], resource, { params }, endpointOptions)
+    yield put(actions.resourceListReadSuccess(resource, list, { params, endpointOptions }, thunk))
   } catch (e) {
-    yield put(actions.resourceListReadFailure(resource, e, { params }, thunk))
+    yield put(actions.resourceListReadFailure(resource, e, { params, endpointOptions }, thunk))
   }
 }
 
 export function* readResourceDetail(api, { needle }, { resource, thunk }) {
   try {
-    const detail = yield call([api, api.get], `/${resource}/${needle}`)
+    const detail = yield call([api, api.getDetail], resource, { needle })
     yield put(actions.resourceDetailReadSuccess(resource, detail, { needle }, thunk))
   } catch (e) {
     yield put(actions.resourceDetailReadFailure(resource, e, { needle }, thunk))
   }
 }
 
-export function* updateResource(api, { needle, data }, { resource, thunk }) {
+export function* updateResource(api, { needle, data }, { resource, thunk, endpointOptions }) {
   try {
-    const detail = yield call([api, api.put], `/${resource}/${needle}`, data)
-    yield put(actions.resourceUpdateSuccess(resource, detail, { needle, data }, thunk))
+    // const detail = yield call([api, api.put], `/${resource}/${needle}`, data, )
+    const detail = yield call([api, api.put], data, { resource, needle, endpointOptions })
+    yield put(actions.resourceUpdateSuccess(resource, detail, { needle, data, endpointOptions }, thunk))
   } catch (e) {
-    yield put(actions.resourceUpdateFailure(resource, e, { needle, data }, thunk))
+    yield put(actions.resourceUpdateFailure(resource, e, { needle, data, endpointOptions }, thunk))
   }
 }
 

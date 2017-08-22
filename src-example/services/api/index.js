@@ -2,6 +2,7 @@
 import 'whatwg-fetch'
 import { stringify } from 'query-string'
 import merge from 'lodash/merge'
+import get from 'lodash/get'
 import { apiUrl } from 'config'
 
 export const checkStatus = (response) => {
@@ -29,7 +30,25 @@ export const parseSettings = ({ method = 'get', data, locale, ...otherSettings }
   return settings
 }
 
-export const parseEndpoint = (endpoint, params) => {
+const getResourceEndpoint = (resource, needle, endpointType, endpointOptions) => {
+  const complexResourceEndpoints = {
+    'comments': {
+      'list': ({ postId }) => `/post/${postId}/comments`
+    }
+  }
+  if (!complexResourceEndpoints.hasOwnProperty(resource)) {
+    switch (endpointType) {
+      case 'detail': return `${resource}/${needle}`
+      case 'list': return `${resource}`
+      default: throw new Error(`Unknown endpoint type: ${endpointType}`)
+    }
+  } else {
+    return complexResourceEndpoints[resource][endpointType](endpointOptions)
+  }
+}
+
+export const parseEndpoint = (resource, needle, endpointType, params, options) => {
+  const endpoint = getResourceEndpoint(resource, needle, endpointType, options)
   const url = endpoint.indexOf('http') === 0 ? endpoint : apiUrl + endpoint
   const querystring = params ? `?${stringify(params)}` : ''
   return `${url}${querystring}`
@@ -37,8 +56,8 @@ export const parseEndpoint = (endpoint, params) => {
 
 const api = {}
 
-api.request = (endpoint, { params, ...settings } = {}) =>
-  fetch(parseEndpoint(endpoint, params), parseSettings(settings))
+api.request = (resource, { params, options, needle, ...settings } = {}) =>
+  fetch(parseEndpoint(resource, params, options, needle), parseSettings(settings))
     .then(checkStatus)
     .then(parseJSON)
 
@@ -67,28 +86,32 @@ api.create = (settings = {}) => ({
     }
   },
 
-  request(endpoint, settings) {
-    return api.request(endpoint, merge({}, this.settings, settings))
+  request(resource, settings) {
+    return api.request(resource, merge({}, this.settings, settings))
   },
 
-  post(endpoint, data, settings) {
-    return this.request(endpoint, { method: 'post', data, ...settings })
+  post(resource, data, settings) {
+    return this.request(resource, { method: 'post', data, ...settings })
   },
 
-  get(endpoint, settings) {
-    return this.request(endpoint, { method: 'get', ...settings })
+  getList(resource, settings, endpointOptions) {
+    return this.request(resource, { method: 'get', ...settings }, endpointOptions)
   },
 
-  put(endpoint, data, settings) {
-    return this.request(endpoint, { method: 'put', data, ...settings })
+  getDetail(resource, { needle }) {
+    return this.request(resource, { method: 'get', ...settings })
   },
 
-  patch(endpoint, data, settings) {
-    return this.request(endpoint, { method: 'patch', data, ...settings })
+  put(resource, data, settings) {
+    return this.request(resource, { method: 'put', data, ...settings })
   },
 
-  delete(endpoint, settings) {
-    return this.request(endpoint, { method: 'delete', ...settings })
+  patch(resource, data, settings) {
+    return this.request(resource, { method: 'patch', data, ...settings })
+  },
+
+  delete(resource, settings) {
+    return this.request(resource, { method: 'delete', ...settings })
   },
 })
 
