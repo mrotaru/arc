@@ -7,7 +7,8 @@ const SamplePage = () => {
   return (
     <PageTemplate header={<Header />} footer={<Footer />}>
       <PostForm />
-      <PostList limit={15} />
+      <PostList limit={5} listId="1" />
+      <PostList limit={5} listId="2" />
     </PageTemplate>
   )
 }

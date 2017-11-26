@@ -10,8 +10,8 @@ export const initialResourceState = {
 export const getResourceState = (state = initialState, resource) =>
   state[resource] || initialResourceState
 
-export const getList = (state = initialState, resource) =>
-  getResourceState(state, resource).list
+export const getList = (state = initialState, resource, listId = 'list') =>
+  getResourceState(state, resource)[listId]
 
 export const getDetail = (state = initialState, resource) =>
   getResourceState(state, resource).detail

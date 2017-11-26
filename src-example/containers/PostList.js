@@ -19,6 +19,7 @@ class PostListContainer extends Component {
     hasServerState: PropTypes.bool,
     setServerState: PropTypes.func.isRequired,
     cleanServerState: PropTypes.func.isRequired,
+    listId: PropTypes.string,
   }
 
   static defaultProps = {
@@ -47,14 +48,14 @@ class PostListContainer extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  list: fromEntities.getList(state, 'posts', fromResource.getList(state, 'posts')),
-  loading: isPending(state, 'postsListRead'),
-  failed: hasFailed(state, 'postsListRead'),
+const mapStateToProps = (state, { listId = 'list' }) => ({
+  list: fromEntities.getList(state, 'posts', fromResource.getList(state, 'posts', listId)),
+  loading: isPending(state, `postsListRead-${listId}`),
+  failed: hasFailed(state, `postsListRead-${listId}`),
 })
 
-const mapDispatchToProps = (dispatch, { limit }) => ({
-  readList: () => dispatch(resourceListReadRequest('posts', { _limit: limit })),
+const mapDispatchToProps = (dispatch, { limit, listId = 'list' }) => ({
+  readList: () => dispatch(resourceListReadRequest('posts', { _limit: limit, userId: listId }, listId)),
 })
 
 const withServerState = fetchState(

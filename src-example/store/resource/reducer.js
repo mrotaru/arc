@@ -57,6 +57,7 @@ const updateOrDeleteReducer = (state, { type, payload, meta }) => {
 
 export default (state = initialState, { type, payload, meta }) => {
   const resource = get(meta, 'resource')
+  const listId = (meta && meta.id) || 'list'
 
   if (!resource) {
     return state
@@ -68,7 +69,7 @@ export default (state = initialState, { type, payload, meta }) => {
         ...state,
         [resource]: {
           ...getResourceState(state, resource),
-          list: [payload, ...getList(state, resource)],
+          [listId]: [payload, ...getList(state, resource)],
         },
       }
 
@@ -77,7 +78,7 @@ export default (state = initialState, { type, payload, meta }) => {
         ...state,
         [resource]: {
           ...getResourceState(state, resource),
-          list: getList(initialState, resource),
+          [listId]: getList(initialState, resource, listId),
         },
       }
     case RESOURCE_LIST_READ_SUCCESS:
@@ -85,7 +86,7 @@ export default (state = initialState, { type, payload, meta }) => {
         ...state,
         [resource]: {
           ...getResourceState(state, resource),
-          list: payload,
+          [listId]: payload,
         },
       }
 
