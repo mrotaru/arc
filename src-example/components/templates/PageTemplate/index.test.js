@@ -2,8 +2,8 @@ import React from 'react'
 import { mount, shallow } from 'enzyme'
 import PageTemplate from '.'
 
-const wrap = (props = {}) => shallow(
-  <PageTemplate header="header" footer="footer" {...props}>test</PageTemplate>
+const wrap = (props = {}) => (
+  shallow(<PageTemplate header="header" footer="footer" {...props}>test</PageTemplate>)
 )
 
 it('mounts', () => {
@@ -23,6 +23,11 @@ it('renders header', () => {
 it('renders hero', () => {
   const wrapper = wrap({ hero: 'hero' })
   expect(wrapper.contains('hero')).toBe(true)
+})
+
+it('renders sponsor', () => {
+  const wrapper = wrap({ sponsor: 'sponsor' })
+  expect(wrapper.contains('sponsor')).toBe(true)
 })
 
 it('renders footer', () => {
